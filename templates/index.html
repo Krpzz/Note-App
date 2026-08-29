@@ -3,53 +3,107 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>iNotes - Your Notes App</title>
+    <title>iNotes - Notes App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/style.css">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <a class="navbar-brand" href="#">iNotes</a>
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
-    </div>
-  </div>
-</nav>
-<div class="container">
-    <h1>Start adding notes</h1>
-    <form>
-  <div class="mb-3">
-    <label for="whats_new" class="form-label">Insert Note</label>
-    <input type="text" class="form-control" name="whats_new">
-  </div>
-  <div class="mb-3">
-    <label for="more" class="form-label">Note Description</label>
-    <input type="text" class="form-control" name="more">
-  </div>
-  <div class="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-</div>
+    <nav class="app-nav">
+      <a class="brand" href="/" aria-label="iNotes home">
+        <span class="brand-mark">iN</span>
+        <span>iNotes</span>
+      </a>
+      <div class="nav-meta">
+        <span>{{ newDocs|length }} notes</span>
+      </div>
+    </nav>
+
+    <main class="app-shell">
+      <section class="composer-panel" aria-labelledby="composer-title">
+        <div class="section-heading">
+          <p class="eyebrow">Capture</p>
+          <h1 id="composer-title">Write a note</h1>
+        </div>
+
+        <form method="POST" action="/" class="note-form">
+          <div class="field-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" placeholder="Meeting ideas, study plan, reminder..." maxlength="80" required>
+          </div>
+
+          <div class="field-group">
+            <label for="desc">Description</label>
+            <textarea id="desc" name="desc" rows="7" placeholder="Write the detail you want to remember." required></textarea>
+          </div>
+
+          <div class="form-row">
+            <label class="important-toggle" for="important">
+              <input type="checkbox" id="important" name="important">
+              <span class="toggle-box" aria-hidden="true"></span>
+              <span>Mark important</span>
+            </label>
+            <button type="submit" class="primary-action">Add note</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="notes-panel" aria-labelledby="notes-title">
+        <div class="notes-toolbar">
+          <div class="section-heading">
+            <p class="eyebrow">Notebook</p>
+            <h2 id="notes-title">Saved notes</h2>
+          </div>
+          <div class="search-wrap">
+            <input type="search" id="noteSearch" placeholder="Search notes" aria-label="Search notes">
+          </div>
+        </div>
+
+        {% if newDocs %}
+          <div class="notes-grid" id="notesGrid">
+            {% for item in newDocs %}
+              <article class="note-card{% if item.important %} is-important{% endif %}" data-note-card data-note-text="{{ (item.title ~ ' ' ~ item.desc)|lower }}">
+                <div class="note-card-header">
+                  <h3>{{ item.title }}</h3>
+                  {% if item.important %}
+                    <span class="pill">Important</span>
+                  {% endif %}
+                </div>
+                <p>{{ item.desc }}</p>
+              </article>
+            {% endfor %}
+          </div>
+          <p class="empty-state d-none" id="emptySearch">No notes match your search.</p>
+        {% else %}
+          <div class="empty-state">
+            <h3>No notes yet</h3>
+            <p>Add your first note and it will appear here.</p>
+          </div>
+        {% endif %}
+      </section>
+    </main>
+
+    <script>
+      const searchInput = document.querySelector("#noteSearch");
+      const cards = [...document.querySelectorAll("[data-note-card]")];
+      const emptySearch = document.querySelector("#emptySearch");
+
+      if (searchInput) {
+        searchInput.addEventListener("input", () => {
+          const query = searchInput.value.trim().toLowerCase();
+          let visibleCount = 0;
+
+          cards.forEach((card) => {
+            const isVisible = card.dataset.noteText.includes(query);
+            card.hidden = !isVisible;
+            if (isVisible) visibleCount += 1;
+          });
+
+          if (emptySearch) {
+            emptySearch.classList.toggle("d-none", visibleCount !== 0);
+          }
+        });
+      }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   </body>
 </html>
