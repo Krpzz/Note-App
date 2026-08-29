@@ -6,6 +6,24 @@
     <title></title>
 </head>
 <body>
-    This is me!
+    <h1>This is me!</h1>
+
+    <h2>MongoDB Data</h2>
+
+    {% if mongodb_error %}
+        <p>Could not load MongoDB data.</p>
+        <pre>{{ mongodb_error }}</pre>
+    {% elif mongodb_data %}
+        <p>Showing data from {{ mongo_database }}.{{ mongo_collection }}</p>
+        <ul>
+            {% for document in mongodb_data %}
+                <li>
+                    <pre>{{ document }}</pre>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No MongoDB documents found in {{ mongo_database }}.{{ mongo_collection }}.</p>
+    {% endif %}
 </body>
 </html>
