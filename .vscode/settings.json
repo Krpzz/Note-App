@@ -1,0 +1,15 @@
+{
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python.defaultInterpreterPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\APP\\.venv\\Scripts\\python.exe",
+  "terminal.integrated.defaultProfile.windows": "APP PowerShell",
+  "terminal.integrated.profiles.windows": {
+    "APP PowerShell": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "Set-Location 'C:\\Users\\Admin\\OneDrive\\Desktop\\APP'; if (Test-Path '.\\.venv\\Scripts\\Activate.ps1') { . '.\\.venv\\Scripts\\Activate.ps1' }"
+      ]
+    }
+  }
+}
